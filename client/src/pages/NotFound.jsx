@@ -1,6 +1,7 @@
 import React from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { FiArrowLeft, FiHome, FiSearch } from 'react-icons/fi';
+import { Button, Typography } from '@mui/material';
 
 export default function NotFound() {
   const navigate = useNavigate();
@@ -17,23 +18,23 @@ export default function NotFound() {
           </div>
         </div>
 
-        <h1 className="text-7xl font-extrabold text-indigo-600 mb-3 tracking-tight">404</h1>
-        <h2 className="text-2xl font-bold text-slate-800 dark:text-white mb-3">Page Not Found</h2>
-        <p className="text-slate-500 dark:text-slate-400 mb-8 leading-relaxed">
+        <Typography variant="h1" className="text-7xl font-extrabold text-indigo-600 mb-3 tracking-tight">404</Typography>
+        <Typography variant="h4" className="text-2xl font-bold text-slate-800 dark:text-white mb-3">Page Not Found</Typography>
+        <Typography variant="body1" className="text-slate-500 dark:text-slate-400 mb-8 leading-relaxed">
           Oops! The page you're looking for doesn't exist or has been moved.
           Let's get you back on track.
-        </p>
+        </Typography>
 
         <div className="flex flex-col sm:flex-row gap-3 justify-center">
-          <button onClick={() => navigate(-1)} className="btn-secondary">
-            <FiArrowLeft className="w-4 h-4" /> Go Back
-          </button>
-          <Link to="/" className="btn-primary">
-            <FiHome className="w-4 h-4" /> Home
-          </Link>
-          <Link to="/jobs" className="btn-secondary">
-            <FiSearch className="w-4 h-4" /> Browse Jobs
-          </Link>
+          <Button variant="outlined" color="primary" onClick={() => navigate(-1)} startIcon={<FiArrowLeft className="w-4 h-4" />}>
+            Go Back
+          </Button>
+          <Button variant="contained" color="primary" component={Link} to="/" startIcon={<FiHome className="w-4 h-4" />}>
+            Home
+          </Button>
+          <Button variant="outlined" color="primary" component={Link} to="/jobs" startIcon={<FiSearch className="w-4 h-4" />}>
+            Browse Jobs
+          </Button>
         </div>
       </div>
     </div>

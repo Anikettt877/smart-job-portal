@@ -2,7 +2,12 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { jobAPI } from '../services/api';
 import toast from 'react-hot-toast';
-import { FiBriefcase, FiPlus, FiX } from 'react-icons/fi';
+import { FiBriefcase } from 'react-icons/fi';
+import {
+  Container, Typography, Card, CardContent, TextField,
+  FormControl, InputLabel, Select, MenuItem, Button, Chip,
+  IconButton
+} from '@mui/material';
 
 const JOB_TYPES    = ['Full-time','Part-time','Remote','Internship','Contract'];
 const CATEGORIES   = ['Technology','Design','Marketing','Sales','Finance','Healthcare','Education','Engineering','HR','Other'];
@@ -54,119 +59,133 @@ export default function PostJob() {
   };
 
   return (
-    <div className="container-app py-10 max-w-3xl animate-fade-in">
+    <Container className="py-10 max-w-3xl animate-fade-in" maxWidth="md">
       <div className="mb-8">
-        <h1 className="text-3xl font-bold text-slate-800 dark:text-white flex items-center gap-3">
+        <Typography variant="h4" component="h1" className="font-bold text-slate-800 dark:text-white flex items-center gap-3" sx={{ fontWeight: 700 }}>
           <FiBriefcase className="w-8 h-8 text-indigo-600" /> Post a New Job
-        </h1>
-        <p className="text-slate-500 mt-1">Fill in the details to attract the best candidates.</p>
+        </Typography>
+        <Typography className="text-slate-500 mt-1">Fill in the details to attract the best candidates.</Typography>
       </div>
 
       <form onSubmit={onSubmit} className="space-y-6">
         {/* Basic Info */}
-        <div className="card p-6 space-y-4">
-          <h2 className="font-semibold text-slate-800 dark:text-white text-base border-b border-slate-100 pb-3">Basic Information</h2>
+        <Card sx={{ boxShadow: 1, borderRadius: 2 }}>
+          <CardContent className="space-y-4 p-6">
+            <Typography variant="h6" className="font-semibold text-slate-800 dark:text-white border-b border-slate-100 pb-3" sx={{ fontWeight: 600 }}>
+              Basic Information
+            </Typography>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div>
-              <label className="form-label">Job Title <span className="text-red-500">*</span></label>
-              <input name="title" value={form.title} onChange={onChange} placeholder="e.g. Frontend Developer" className="form-input" required />
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <TextField name="title" label="Job Title" value={form.title} onChange={onChange} placeholder="e.g. Frontend Developer" required fullWidth size="small" />
+              <TextField name="company" label="Company Name" value={form.company} onChange={onChange} placeholder="e.g. Acme Corp" required fullWidth size="small" />
+              <TextField name="location" label="Location" value={form.location} onChange={onChange} placeholder="e.g. Mumbai, India" required fullWidth size="small" />
+              <TextField name="salary" label="Salary" value={form.salary} onChange={onChange} placeholder="e.g. ₹8-12 LPA" fullWidth size="small" />
             </div>
-            <div>
-              <label className="form-label">Company Name <span className="text-red-500">*</span></label>
-              <input name="company" value={form.company} onChange={onChange} placeholder="e.g. Acme Corp" className="form-input" required />
-            </div>
-            <div>
-              <label className="form-label">Location <span className="text-red-500">*</span></label>
-              <input name="location" value={form.location} onChange={onChange} placeholder="e.g. Mumbai, India" className="form-input" required />
-            </div>
-            <div>
-              <label className="form-label">Salary</label>
-              <input name="salary" value={form.salary} onChange={onChange} placeholder="e.g. ₹8-12 LPA" className="form-input" />
-            </div>
-          </div>
-        </div>
+          </CardContent>
+        </Card>
 
         {/* Classification */}
-        <div className="card p-6 space-y-4">
-          <h2 className="font-semibold text-slate-800 dark:text-white text-base border-b border-slate-100 pb-3">Job Classification</h2>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <div>
-              <label className="form-label">Job Type</label>
-              <select name="jobType" value={form.jobType} onChange={onChange} className="form-input">
-                {JOB_TYPES.map((t) => <option key={t}>{t}</option>)}
-              </select>
+        <Card sx={{ boxShadow: 1, borderRadius: 2 }}>
+          <CardContent className="space-y-4 p-6">
+            <Typography variant="h6" className="font-semibold text-slate-800 dark:text-white border-b border-slate-100 pb-3" sx={{ fontWeight: 600 }}>
+              Job Classification
+            </Typography>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <FormControl fullWidth size="small">
+                <InputLabel>Job Type</InputLabel>
+                <Select name="jobType" value={form.jobType} onChange={onChange} label="Job Type">
+                  {JOB_TYPES.map((t) => <MenuItem key={t} value={t}>{t}</MenuItem>)}
+                </Select>
+              </FormControl>
+              <FormControl fullWidth size="small">
+                <InputLabel>Category</InputLabel>
+                <Select name="category" value={form.category} onChange={onChange} label="Category">
+                  {CATEGORIES.map((c) => <MenuItem key={c} value={c}>{c}</MenuItem>)}
+                </Select>
+              </FormControl>
+              <FormControl fullWidth size="small">
+                <InputLabel>Experience Level</InputLabel>
+                <Select name="experienceLevel" value={form.experienceLevel} onChange={onChange} label="Experience Level">
+                  {EXP_LEVELS.map((l) => <MenuItem key={l} value={l}>{l}</MenuItem>)}
+                </Select>
+              </FormControl>
             </div>
             <div>
-              <label className="form-label">Category</label>
-              <select name="category" value={form.category} onChange={onChange} className="form-input">
-                {CATEGORIES.map((c) => <option key={c}>{c}</option>)}
-              </select>
+              <TextField
+                type="date"
+                name="deadline"
+                label="Application Deadline"
+                value={form.deadline}
+                onChange={onChange}
+                InputLabelProps={{ shrink: true }}
+                inputProps={{ min: new Date().toISOString().split('T')[0] }}
+                size="small"
+                fullWidth
+                sx={{ maxWidth: 200 }}
+                helperText="Optional"
+              />
             </div>
-            <div>
-              <label className="form-label">Experience Level</label>
-              <select name="experienceLevel" value={form.experienceLevel} onChange={onChange} className="form-input">
-                {EXP_LEVELS.map((l) => <option key={l}>{l}</option>)}
-              </select>
-            </div>
-          </div>
-          <div>
-            <label className="form-label">Application Deadline <span className="text-slate-400 font-normal">(optional)</span></label>
-            <input type="date" name="deadline" value={form.deadline} onChange={onChange}
-              min={new Date().toISOString().split('T')[0]} className="form-input max-w-xs" />
-          </div>
-        </div>
+          </CardContent>
+        </Card>
 
         {/* Description */}
-        <div className="card p-6 space-y-4">
-          <h2 className="font-semibold text-slate-800 dark:text-white text-base border-b border-slate-100 pb-3">Job Details</h2>
-          <div>
-            <label className="form-label">Job Description <span className="text-red-500">*</span></label>
-            <textarea name="description" value={form.description} onChange={onChange} rows={7}
-              placeholder="Describe the role, responsibilities, and what a typical day looks like..."
-              className="form-input resize-none" required />
-            <p className="text-xs text-slate-400 mt-1">{form.description.length} characters (min 30)</p>
-          </div>
-
-          {/* Requirements */}
-          <div>
-            <label className="form-label">Requirements <span className="text-slate-400 font-normal">(optional)</span></label>
-            <div className="flex gap-2">
-              <input value={reqInput} onChange={(e) => setReqInput(e.target.value)}
-                onKeyDown={(e) => e.key === 'Enter' && (e.preventDefault(), addRequirement())}
-                placeholder="e.g. 3+ years of React experience" className="form-input flex-1" />
-              <button type="button" onClick={addRequirement} className="btn-secondary">
-                <FiPlus className="w-4 h-4" />
-              </button>
+        <Card sx={{ boxShadow: 1, borderRadius: 2 }}>
+          <CardContent className="space-y-4 p-6">
+            <Typography variant="h6" className="font-semibold text-slate-800 dark:text-white border-b border-slate-100 pb-3" sx={{ fontWeight: 600 }}>
+              Job Details
+            </Typography>
+            <div>
+              <TextField
+                name="description"
+                label="Job Description"
+                value={form.description}
+                onChange={onChange}
+                multiline
+                rows={7}
+                placeholder="Describe the role, responsibilities, and what a typical day looks like..."
+                required
+                fullWidth
+                helperText={`${form.description.length} characters (min 30)`}
+              />
             </div>
-            {form.requirements.length > 0 && (
-              <div className="flex flex-wrap gap-2 mt-3">
-                {form.requirements.map((req, i) => (
-                  <span key={i} className="flex items-center gap-1.5 px-3 py-1.5 bg-indigo-50 text-indigo-700 rounded-xl text-sm border border-indigo-100">
-                    {req}
-                    <button type="button" onClick={() => removeRequirement(i)} className="hover:text-red-500">
-                      <FiX className="w-3 h-3" />
-                    </button>
-                  </span>
-                ))}
+
+            {/* Requirements */}
+            <div>
+              <Typography variant="body2" className="mb-2 text-slate-700">Requirements <span className="text-slate-400 font-normal">(optional)</span></Typography>
+              <div className="flex gap-2">
+                <TextField
+                  value={reqInput}
+                  onChange={(e) => setReqInput(e.target.value)}
+                  onKeyDown={(e) => e.key === 'Enter' && (e.preventDefault(), addRequirement())}
+                  placeholder="e.g. 3+ years of React experience"
+                  fullWidth
+                  size="small"
+                />
+                <Button type="button" onClick={addRequirement} variant="outlined" color="primary">
+                  Add
+                </Button>
               </div>
-            )}
-          </div>
-        </div>
+              {form.requirements.length > 0 && (
+                <div className="flex flex-wrap gap-2 mt-3">
+                  {form.requirements.map((req, i) => (
+                    <Chip key={i} label={req} onDelete={() => removeRequirement(i)} color="primary" variant="outlined" />
+                  ))}
+                </div>
+              )}
+            </div>
+          </CardContent>
+        </Card>
 
         {/* Actions */}
         <div className="flex gap-3">
-          <button type="button" onClick={() => navigate('/dashboard')} className="btn-secondary flex-1">Cancel</button>
-          <button type="submit" disabled={loading} className="btn-primary flex-1 py-3">
-            {loading ? (
-              <span className="flex items-center gap-2 justify-center">
-                <span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                Posting...
-              </span>
-            ) : 'Post Job'}
-          </button>
+          <Button type="button" onClick={() => navigate('/dashboard')} variant="outlined" color="inherit" fullWidth sx={{ py: 1.5, textTransform: 'none' }}>
+            Cancel
+          </Button>
+          <Button type="submit" disabled={loading} variant="contained" color="primary" fullWidth sx={{ py: 1.5, textTransform: 'none' }}>
+            {loading ? 'Posting...' : 'Post Job'}
+          </Button>
         </div>
       </form>
-    </div>
+    </Container>
   );
 }

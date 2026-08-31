@@ -12,8 +12,8 @@ import {
   FiUser, FiMail, FiMapPin, FiPhone, FiGlobe,
   FiEdit2, FiSave, FiX, FiPlus, FiAward, FiBriefcase,
 } from 'react-icons/fi';
+import { Card, CardContent, Avatar, Chip, TextField, Button, LinearProgress, Divider, Typography } from '@mui/material';
 
-// ── Skill input chip component ────────────────────────────────────────────────
 const SkillInput = ({ skills, onChange }) => {
   const [input, setInput] = useState('');
 
@@ -30,43 +30,51 @@ const SkillInput = ({ skills, onChange }) => {
   return (
     <div>
       <div className="flex gap-2 mb-3">
-        <input value={input} onChange={(e) => setInput(e.target.value)}
+        <TextField
+          size="small"
+          value={input}
+          onChange={(e) => setInput(e.target.value)}
           onKeyDown={(e) => e.key === 'Enter' && (e.preventDefault(), add())}
-          placeholder="e.g. React, Node.js, Python..." className="form-input flex-1" />
-        <button type="button" onClick={add} className="btn-secondary px-3">
+          placeholder="e.g. React, Node.js, Python..."
+          className="flex-1"
+        />
+        <Button variant="outlined" onClick={add} sx={{ minWidth: '40px', px: 2 }}>
           <FiPlus className="w-4 h-4" />
-        </button>
+        </Button>
       </div>
       <div className="flex flex-wrap gap-2">
         {skills.map((skill) => (
-          <span key={skill} className="flex items-center gap-1.5 px-3 py-1.5 bg-indigo-50 text-indigo-700 rounded-xl text-sm border border-indigo-100 font-medium">
-            {skill}
-            <button type="button" onClick={() => remove(skill)}
-              className="hover:text-red-500 transition-colors"><FiX className="w-3 h-3" /></button>
-          </span>
+          <Chip
+            key={skill}
+            label={skill}
+            onDelete={() => remove(skill)}
+            color="primary"
+            variant="outlined"
+            size="small"
+          />
         ))}
         {skills.length === 0 && (
-          <p className="text-xs text-slate-400 italic">Add skills to improve your profile visibility.</p>
+          <Typography variant="caption" className="text-slate-400 italic">Add skills to improve your profile visibility.</Typography>
         )}
       </div>
     </div>
   );
 };
 
-// ── Info row (read-only view) ─────────────────────────────────────────────────
-const InfoRow = ({ icon: Icon, label, value, color = 'indigo' }) => (
+const InfoRow = ({ icon: Icon, label, value, color = 'primary.main', bgcolor = 'primary.50' }) => (
   <div className="flex items-center gap-3">
-    <div className={`w-9 h-9 rounded-lg bg-${color}-50 flex items-center justify-center flex-shrink-0`}>
-      <Icon className={`w-4 h-4 text-${color}-500`} />
-    </div>
+    <Avatar sx={{ width: 36, height: 36, bgcolor: bgcolor, color: color }} variant="rounded">
+      <Icon className="w-4 h-4" />
+    </Avatar>
     <div className="min-w-0">
-      <p className="text-xs text-slate-400 uppercase tracking-wide font-medium">{label}</p>
-      <p className="text-sm font-medium text-slate-700 dark:text-slate-200 truncate">{value || <span className="italic text-slate-400">Not provided</span>}</p>
+      <Typography variant="overline" display="block" className="text-slate-400 tracking-wide font-medium" sx={{ lineHeight: 1 }}>{label}</Typography>
+      <Typography variant="body2" className="font-medium text-slate-700 dark:text-slate-200 truncate">
+        {value || <span className="italic text-slate-400">Not provided</span>}
+      </Typography>
     </div>
   </div>
 );
 
-// ── Main Component ─────────────────────────────────────────────────────────────
 export default function Profile() {
   const { user, updateUser } = useAuth();
   const [editing, setEditing] = useState(false);
@@ -108,212 +116,218 @@ export default function Profile() {
   };
 
   const roleBadge = {
-    admin:     { label: 'Admin',      color: 'bg-purple-100 text-purple-700' },
-    recruiter: { label: 'Recruiter',  color: 'bg-blue-100   text-blue-700' },
-    user:      { label: 'Job Seeker', color: 'bg-emerald-100 text-emerald-700' },
-  }[user?.role] || {};
+    admin:     { label: 'Admin',      color: 'secondary' },
+    recruiter: { label: 'Recruiter',  color: 'info' },
+    user:      { label: 'Job Seeker', color: 'success' },
+  }[user?.role] || { label: 'User', color: 'default' };
 
-  // Profile completeness score
   const fields = [user?.bio, user?.skills?.length, user?.location, user?.phone, user?.website];
   const score  = Math.round((fields.filter(Boolean).length / fields.length) * 100);
 
   return (
     <div className="container-app py-10 max-w-4xl animate-fade-in">
-      <h1 className="text-3xl font-bold text-slate-800 dark:text-white mb-8">My Profile</h1>
+      <Typography variant="h4" className="font-bold text-slate-800 dark:text-white mb-8">My Profile</Typography>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* ── Left sidebar ── */}
         <div className="space-y-5">
-          {/* Avatar card */}
-          <div className="card p-6 text-center">
-            <div className="w-24 h-24 mx-auto rounded-2xl bg-gradient-to-br from-indigo-500 to-violet-600 text-white font-extrabold text-4xl flex items-center justify-center shadow-lg shadow-indigo-200 mb-4">
-              {user?.name?.charAt(0).toUpperCase()}
-            </div>
-            <h2 className="font-bold text-lg text-slate-800 dark:text-white">{user?.name}</h2>
-            <p className="text-sm text-slate-500 mb-2">{user?.email}</p>
-            <span className={`badge ${roleBadge.color} text-xs font-semibold px-3 py-1`}>{roleBadge.label}</span>
-            <p className="text-xs text-slate-400 mt-3">
-              Member since {new Date(user?.createdAt).toLocaleDateString('en-US', { year: 'numeric', month: 'long' })}
-            </p>
-          </div>
+          <Card className="text-center">
+            <CardContent>
+              <Avatar
+                sx={{
+                  width: 96,
+                  height: 96,
+                  fontSize: '2.5rem',
+                  mx: 'auto',
+                  mb: 2,
+                  background: 'linear-gradient(to bottom right, #6366f1, #7c3aed)',
+                  boxShadow: '0 10px 15px -3px rgba(99, 102, 241, 0.2)'
+                }}
+              >
+                {user?.name?.charAt(0).toUpperCase()}
+              </Avatar>
+              <Typography variant="h6" className="font-bold text-slate-800 dark:text-white">{user?.name}</Typography>
+              <Typography variant="body2" className="text-slate-500 mb-2">{user?.email}</Typography>
+              <Chip label={roleBadge.label} color={roleBadge.color} size="small" sx={{ fontWeight: 'bold' }} />
+              <Typography variant="caption" display="block" className="text-slate-400 mt-3">
+                Member since {new Date(user?.createdAt).toLocaleDateString('en-US', { year: 'numeric', month: 'long' })}
+              </Typography>
+            </CardContent>
+          </Card>
 
-          {/* Completeness */}
-          <div className="card p-5">
-            <div className="flex items-center justify-between mb-3">
-              <h3 className="font-semibold text-slate-700 dark:text-white text-sm">Profile Strength</h3>
-              <span className={`text-sm font-bold ${score === 100 ? 'text-emerald-600' : score >= 60 ? 'text-amber-500' : 'text-red-500'}`}>{score}%</span>
-            </div>
-            <div className="h-2 bg-slate-100 rounded-full overflow-hidden">
-              <div className={`h-full rounded-full transition-all duration-700 ${score === 100 ? 'bg-emerald-500' : score >= 60 ? 'bg-amber-400' : 'bg-red-400'}`}
-                style={{ width: `${score}%` }} />
-            </div>
-            {score < 100 && (
-              <p className="text-xs text-slate-400 mt-2">
-                {!user?.bio && '• Add a bio  '}
-                {!user?.location && '• Add location  '}
-                {!user?.phone && '• Add phone  '}
-                {!user?.skills?.length && '• Add skills'}
-              </p>
-            )}
-          </div>
-
-          {/* Quick info (view mode) */}
-          {!editing && (
-            <div className="card p-5 space-y-4">
-              <InfoRow icon={FiMail}    label="Email"    value={user?.email} />
-              <InfoRow icon={FiMapPin}  label="Location" value={user?.location} color="rose" />
-              <InfoRow icon={FiPhone}   label="Phone"    value={user?.phone}    color="emerald" />
-              {user?.website && (
-                <div className="flex items-center gap-3">
-                  <div className="w-9 h-9 rounded-lg bg-violet-50 flex items-center justify-center">
-                    <FiGlobe className="w-4 h-4 text-violet-500" />
-                  </div>
-                  <div className="min-w-0">
-                    <p className="text-xs text-slate-400 uppercase tracking-wide font-medium">Website</p>
-                    <a href={user.website} target="_blank" rel="noopener noreferrer"
-                      className="text-sm font-medium text-indigo-600 hover:underline truncate block">{user.website}</a>
-                  </div>
-                </div>
+          <Card>
+            <CardContent>
+              <div className="flex items-center justify-between mb-2">
+                <Typography variant="subtitle2" className="font-semibold text-slate-700 dark:text-white">Profile Strength</Typography>
+                <Typography variant="subtitle2" className={`font-bold ${score === 100 ? 'text-emerald-600' : score >= 60 ? 'text-amber-500' : 'text-red-500'}`}>
+                  {score}%
+                </Typography>
+              </div>
+              <LinearProgress
+                variant="determinate"
+                value={score}
+                color={score === 100 ? "success" : score >= 60 ? "warning" : "error"}
+                sx={{ height: 8, borderRadius: 4 }}
+              />
+              {score < 100 && (
+                <Typography variant="caption" display="block" className="text-slate-400 mt-2">
+                  {!user?.bio && '• Add a bio  '}
+                  {!user?.location && '• Add location  '}
+                  {!user?.phone && '• Add phone  '}
+                  {!user?.skills?.length && '• Add skills'}
+                </Typography>
               )}
-            </div>
+            </CardContent>
+          </Card>
+
+          {!editing && (
+            <Card>
+              <CardContent className="space-y-4">
+                <InfoRow icon={FiMail}    label="Email"    value={user?.email} />
+                <InfoRow icon={FiMapPin}  label="Location" value={user?.location} color="#f43f5e" bgcolor="#fff1f2" />
+                <InfoRow icon={FiPhone}   label="Phone"    value={user?.phone}    color="#10b981" bgcolor="#ecfdf5" />
+                {user?.website && (
+                  <div className="flex items-center gap-3">
+                    <Avatar sx={{ width: 36, height: 36, bgcolor: '#f5f3ff', color: '#8b5cf6' }} variant="rounded">
+                      <FiGlobe className="w-4 h-4" />
+                    </Avatar>
+                    <div className="min-w-0">
+                      <Typography variant="overline" display="block" className="text-slate-400 tracking-wide font-medium" sx={{ lineHeight: 1 }}>Website</Typography>
+                      <a href={user.website} target="_blank" rel="noopener noreferrer"
+                        className="text-sm font-medium text-indigo-600 hover:underline truncate block">{user.website}</a>
+                    </div>
+                  </div>
+                )}
+              </CardContent>
+            </Card>
           )}
         </div>
 
-        {/* ── Main content ── */}
         <div className="lg:col-span-2 space-y-5">
-          {/* Edit / View toggle */}
           <div className="flex justify-end">
             {!editing ? (
-              <button onClick={() => setEditing(true)} className="btn-primary">
-                <FiEdit2 className="w-4 h-4" /> Edit Profile
-              </button>
+              <Button variant="contained" onClick={() => setEditing(true)} startIcon={<FiEdit2 className="w-4 h-4" />}>
+                Edit Profile
+              </Button>
             ) : (
               <div className="flex gap-2">
-                <button onClick={onCancel} className="btn-secondary"><FiX className="w-4 h-4" /> Cancel</button>
-                <button onClick={onSave} disabled={saving} className="btn-primary">
-                  {saving ? (
-                    <span className="flex items-center gap-2">
-                      <span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                      Saving...
-                    </span>
-                  ) : <><FiSave className="w-4 h-4" /> Save Changes</>}
-                </button>
+                <Button variant="outlined" onClick={onCancel} startIcon={<FiX className="w-4 h-4" />}>
+                  Cancel
+                </Button>
+                <Button variant="contained" onClick={onSave} disabled={saving} startIcon={!saving && <FiSave className="w-4 h-4" />}>
+                  {saving ? 'Saving...' : 'Save Changes'}
+                </Button>
               </div>
             )}
           </div>
 
-          {/* ── View Mode ── */}
           {!editing ? (
             <>
-              {/* Bio */}
-              <div className="card p-6">
-                <h3 className="font-semibold text-slate-800 dark:text-white mb-3 flex items-center gap-2">
-                  <FiUser className="w-4 h-4 text-indigo-500" /> About Me
-                </h3>
-                {user?.bio ? (
-                  <p className="text-slate-600 dark:text-slate-300 text-sm leading-relaxed">{user.bio}</p>
-                ) : (
-                  <p className="text-slate-400 italic text-sm">No bio added yet. Click "Edit Profile" to add one.</p>
-                )}
-              </div>
+              <Card>
+                <CardContent>
+                  <Typography variant="subtitle1" className="font-semibold text-slate-800 dark:text-white mb-3 flex items-center gap-2">
+                    <FiUser className="w-4 h-4 text-indigo-500" /> About Me
+                  </Typography>
+                  {user?.bio ? (
+                    <Typography variant="body2" className="text-slate-600 dark:text-slate-300 leading-relaxed">{user.bio}</Typography>
+                  ) : (
+                    <Typography variant="body2" className="text-slate-400 italic">No bio added yet. Click "Edit Profile" to add one.</Typography>
+                  )}
+                </CardContent>
+              </Card>
 
-              {/* Skills */}
-              <div className="card p-6">
-                <h3 className="font-semibold text-slate-800 dark:text-white mb-4 flex items-center gap-2">
-                  <FiAward className="w-4 h-4 text-indigo-500" /> Skills & Expertise
-                </h3>
-                {user?.skills?.length > 0 ? (
-                  <div className="flex flex-wrap gap-2">
-                    {user.skills.map((skill) => (
-                      <span key={skill} className="px-3 py-1.5 bg-indigo-50 dark:bg-indigo-900/30 text-indigo-700 dark:text-indigo-300 rounded-xl text-sm font-medium border border-indigo-100 dark:border-indigo-800">
-                        {skill}
+              <Card>
+                <CardContent>
+                  <Typography variant="subtitle1" className="font-semibold text-slate-800 dark:text-white mb-4 flex items-center gap-2">
+                    <FiAward className="w-4 h-4 text-indigo-500" /> Skills & Expertise
+                  </Typography>
+                  {user?.skills?.length > 0 ? (
+                    <div className="flex flex-wrap gap-2">
+                      {user.skills.map((skill) => (
+                        <Chip key={skill} label={skill} color="primary" variant="outlined" size="small" className="bg-indigo-50 dark:bg-indigo-900/30 text-indigo-700 dark:text-indigo-300" />
+                      ))}
+                    </div>
+                  ) : (
+                    <Typography variant="body2" className="text-slate-400 italic">No skills added yet. Skills help recruiters find you!</Typography>
+                  )}
+                </CardContent>
+              </Card>
+
+              <Card>
+                <CardContent>
+                  <Typography variant="subtitle1" className="font-semibold text-slate-800 dark:text-white mb-4 flex items-center gap-2">
+                    <FiBriefcase className="w-4 h-4 text-indigo-500" /> Account Details
+                  </Typography>
+                  <div className="space-y-3">
+                    <div className="flex justify-between text-sm">
+                      <span className="text-slate-500">Account Role</span>
+                      <Chip label={roleBadge.label} color={roleBadge.color} size="small" sx={{ fontWeight: 'bold' }} />
+                    </div>
+                    <div className="flex justify-between text-sm">
+                      <span className="text-slate-500">Member Since</span>
+                      <span className="font-medium text-slate-700 dark:text-slate-200">
+                        {new Date(user?.createdAt).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}
                       </span>
-                    ))}
+                    </div>
                   </div>
-                ) : (
-                  <p className="text-slate-400 italic text-sm">No skills added yet. Skills help recruiters find you!</p>
-                )}
-              </div>
-
-              {/* Account info */}
-              <div className="card p-6">
-                <h3 className="font-semibold text-slate-800 dark:text-white mb-4 flex items-center gap-2">
-                  <FiBriefcase className="w-4 h-4 text-indigo-500" /> Account Details
-                </h3>
-                <div className="space-y-3">
-                  <div className="flex justify-between text-sm">
-                    <span className="text-slate-500">Account Role</span>
-                    <span className={`font-semibold badge ${roleBadge.color}`}>{roleBadge.label}</span>
-                  </div>
-                  <div className="flex justify-between text-sm">
-                    <span className="text-slate-500">Member Since</span>
-                    <span className="font-medium text-slate-700 dark:text-slate-200">
-                      {new Date(user?.createdAt).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}
-                    </span>
-                  </div>
-                </div>
-              </div>
+                </CardContent>
+              </Card>
             </>
           ) : (
-            /* ── Edit Mode ── */
             <form onSubmit={onSave} className="space-y-5">
-              <div className="card p-6 space-y-4">
-                <h3 className="font-semibold text-slate-800 dark:text-white border-b border-slate-100 dark:border-slate-700 pb-3">Personal Information</h3>
+              <Card>
+                <CardContent className="space-y-4">
+                  <Typography variant="subtitle1" className="font-semibold text-slate-800 dark:text-white pb-3 border-b border-slate-100 dark:border-slate-700">
+                    Personal Information
+                  </Typography>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div>
-                    <label className="form-label">Full Name <span className="text-red-500">*</span></label>
-                    <div className="relative">
-                      <FiUser className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 w-4 h-4" />
-                      <input name="name" value={form.name} onChange={onChange}
-                        placeholder="Your full name" className="form-input pl-10" required />
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                      <Typography variant="caption" className="font-medium mb-1 block">Full Name <span className="text-red-500">*</span></Typography>
+                      <TextField fullWidth size="small" name="name" value={form.name} onChange={onChange} placeholder="Your full name" required />
+                    </div>
+
+                    <div>
+                      <Typography variant="caption" className="font-medium mb-1 block">Location</Typography>
+                      <TextField fullWidth size="small" name="location" value={form.location} onChange={onChange} placeholder="e.g. Mumbai, India" />
+                    </div>
+
+                    <div>
+                      <Typography variant="caption" className="font-medium mb-1 block">Phone Number</Typography>
+                      <TextField fullWidth size="small" name="phone" value={form.phone} onChange={onChange} placeholder="+91 98765 43210" />
+                    </div>
+
+                    <div>
+                      <Typography variant="caption" className="font-medium mb-1 block">Website / Portfolio</Typography>
+                      <TextField fullWidth size="small" name="website" value={form.website} onChange={onChange} placeholder="https://yourportfolio.com" />
                     </div>
                   </div>
 
                   <div>
-                    <label className="form-label">Location</label>
-                    <div className="relative">
-                      <FiMapPin className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 w-4 h-4" />
-                      <input name="location" value={form.location} onChange={onChange}
-                        placeholder="e.g. Mumbai, India" className="form-input pl-10" />
-                    </div>
+                    <Typography variant="caption" className="font-medium mb-1 block">Bio</Typography>
+                    <TextField
+                      fullWidth
+                      multiline
+                      rows={4}
+                      name="bio"
+                      value={form.bio}
+                      onChange={onChange}
+                      placeholder="Tell recruiters about yourself — your experience, goals, and what makes you unique..."
+                      inputProps={{ maxLength: 300 }}
+                    />
+                    <Typography variant="caption" className="text-slate-400 mt-1 block">{form.bio.length}/300 characters</Typography>
                   </div>
+                </CardContent>
+              </Card>
 
-                  <div>
-                    <label className="form-label">Phone Number</label>
-                    <div className="relative">
-                      <FiPhone className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 w-4 h-4" />
-                      <input name="phone" value={form.phone} onChange={onChange}
-                        placeholder="+91 98765 43210" className="form-input pl-10" />
-                    </div>
-                  </div>
-
-                  <div>
-                    <label className="form-label">Website / Portfolio</label>
-                    <div className="relative">
-                      <FiGlobe className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 w-4 h-4" />
-                      <input name="website" value={form.website} onChange={onChange}
-                        placeholder="https://yourportfolio.com" className="form-input pl-10" />
-                    </div>
-                  </div>
-                </div>
-
-                <div>
-                  <label className="form-label">Bio</label>
-                  <textarea name="bio" value={form.bio} onChange={onChange} rows={4}
-                    placeholder="Tell recruiters about yourself — your experience, goals, and what makes you unique..."
-                    className="form-input resize-none" maxLength={300} />
-                  <p className="text-xs text-slate-400 mt-1">{form.bio.length}/300 characters</p>
-                </div>
-              </div>
-
-              <div className="card p-6">
-                <h3 className="font-semibold text-slate-800 dark:text-white border-b border-slate-100 dark:border-slate-700 pb-3 mb-4 flex items-center gap-2">
-                  <FiAward className="w-4 h-4 text-indigo-500" /> Skills
-                </h3>
-                <SkillInput skills={form.skills} onChange={(updated) => setForm({ ...form, skills: updated })} />
-                <p className="text-xs text-slate-400 mt-2">Press Enter or click + to add a skill. Max 20 skills.</p>
-              </div>
+              <Card>
+                <CardContent>
+                  <Typography variant="subtitle1" className="font-semibold text-slate-800 dark:text-white pb-3 mb-4 border-b border-slate-100 dark:border-slate-700 flex items-center gap-2">
+                    <FiAward className="w-4 h-4 text-indigo-500" /> Skills
+                  </Typography>
+                  <SkillInput skills={form.skills} onChange={(updated) => setForm({ ...form, skills: updated })} />
+                  <Typography variant="caption" className="text-slate-400 mt-2 block">Press Enter or click + to add a skill. Max 20 skills.</Typography>
+                </CardContent>
+              </Card>
             </form>
           )}
         </div>

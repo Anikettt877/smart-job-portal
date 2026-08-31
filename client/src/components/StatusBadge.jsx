@@ -1,16 +1,22 @@
 import React from 'react';
+import { Chip } from '@mui/material';
 
-const STATUS_STYLES = {
-  applied:   'bg-blue-100 text-blue-700 border border-blue-200',
-  reviewing: 'bg-amber-100 text-amber-700 border border-amber-200',
-  selected:  'bg-emerald-100 text-emerald-700 border border-emerald-200',
-  rejected:  'bg-red-100 text-red-700 border border-red-200',
+const STATUS_COLORS = {
+  applied: 'info',
+  reviewing: 'warning',
+  selected: 'success',
+  rejected: 'error',
 };
 
 export default function StatusBadge({ status }) {
+  const color = STATUS_COLORS[status] || 'default';
+  
   return (
-    <span className={`badge capitalize font-semibold text-xs px-3 py-1 ${STATUS_STYLES[status] || 'bg-slate-100 text-slate-600'}`}>
-      {status}
-    </span>
+    <Chip
+      label={status}
+      color={color}
+      size="small"
+      className="capitalize font-semibold text-xs"
+    />
   );
 }

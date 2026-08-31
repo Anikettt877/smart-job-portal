@@ -1,6 +1,7 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { FiBriefcase, FiGithub, FiLinkedin, FiTwitter } from 'react-icons/fi';
+import { IconButton, Divider, Typography } from '@mui/material';
 
 export default function Footer() {
   return (
@@ -13,43 +14,58 @@ export default function Footer() {
               <FiBriefcase className="w-6 h-6 text-indigo-400" />
               SmartHire
             </Link>
-            <p className="text-sm leading-relaxed max-w-xs">
+            <Typography variant="body2" className="text-slate-400 leading-relaxed max-w-xs">
               A modern job portal connecting talented professionals with top companies. Find your dream job or hire the best talent today.
-            </p>
+            </Typography>
             <div className="flex gap-4 mt-4">
               {[FiGithub, FiLinkedin, FiTwitter].map((Icon, i) => (
-                <a key={i} href="#" className="p-2 rounded-lg hover:bg-slate-800 hover:text-indigo-400 transition-colors">
-                  <Icon className="w-4 h-4" />
-                </a>
+                <IconButton 
+                  key={i} 
+                  component="a" 
+                  href="#" 
+                  className="rounded-lg text-slate-400 hover:bg-slate-800 hover:text-indigo-400 transition-colors"
+                >
+                  <Icon className="w-5 h-5" />
+                </IconButton>
               ))}
             </div>
           </div>
 
           {/* Quick Links */}
           <div>
-            <h4 className="text-white font-semibold mb-3 text-sm">Quick Links</h4>
+            <Typography variant="subtitle2" className="text-white font-semibold mb-3">Quick Links</Typography>
             <ul className="space-y-2 text-sm">
               {[['/', 'Home'], ['/jobs', 'Browse Jobs'], ['/register', 'Create Account'], ['/login', 'Sign In']].map(([to, label]) => (
-                <li key={to}><Link to={to} className="hover:text-indigo-400 transition-colors">{label}</Link></li>
+                <li key={to}>
+                  <Link to={to} className="hover:text-indigo-400 transition-colors">
+                    <Typography variant="body2" component="span">{label}</Typography>
+                  </Link>
+                </li>
               ))}
             </ul>
           </div>
 
           {/* For Recruiters */}
           <div>
-            <h4 className="text-white font-semibold mb-3 text-sm">For Recruiters</h4>
+            <Typography variant="subtitle2" className="text-white font-semibold mb-3">For Recruiters</Typography>
             <ul className="space-y-2 text-sm">
               {['/post-job', '/dashboard'].map((to) => (
-                <li key={to}><Link to={to} className="hover:text-indigo-400 transition-colors capitalize">{to.replace('/', '').replace('-', ' ')}</Link></li>
+                <li key={to}>
+                  <Link to={to} className="hover:text-indigo-400 transition-colors capitalize">
+                    <Typography variant="body2" component="span">{to.replace('/', '').replace('-', ' ')}</Typography>
+                  </Link>
+                </li>
               ))}
               <li><span className="text-xs bg-indigo-900/50 text-indigo-400 px-2 py-0.5 rounded-full">Register as Recruiter</span></li>
             </ul>
           </div>
         </div>
 
-        <div className="border-t border-slate-800 pt-6 flex flex-col md:flex-row items-center justify-between gap-2 text-xs">
-          <p>© {new Date().getFullYear()} SmartHire Job Portal. All rights reserved.</p>
-          <p>Built using MERN Stack</p>
+        <Divider sx={{ borderColor: '#1e293b', mb: 3 }} />
+        
+        <div className="flex flex-col md:flex-row items-center justify-between gap-2 text-xs">
+          <Typography variant="caption">© {new Date().getFullYear()} SmartHire Job Portal. All rights reserved.</Typography>
+          <Typography variant="caption">Built using MERN Stack</Typography>
         </div>
       </div>
     </footer>

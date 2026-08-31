@@ -6,6 +6,7 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { FiMapPin, FiDollarSign, FiClock, FiUsers, FiArrowRight, FiBookmark } from 'react-icons/fi';
+import { Card, CardContent, CardActions, Avatar, Chip, IconButton, Button, Tooltip, Typography } from '@mui/material';
 
 // ── Badge colour map ───────────────────────────────────────────────────────────
 const jobTypeColors = {
@@ -41,57 +42,85 @@ export default function JobCard({ job, compact = false }) {
   } = job;
 
   return (
-    <div className="card p-5 flex flex-col gap-4 group animate-slide-up">
-      {/* Header */}
-      <div className="flex items-start justify-between gap-3">
-        <div className="flex-1 min-w-0">
-          {/* Company initial avatar */}
-          <div className="flex items-center gap-3 mb-2">
-            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center text-white font-bold text-sm flex-shrink-0">
-              {company?.charAt(0).toUpperCase()}
+    <Card className="flex flex-col gap-2 group animate-slide-up rounded-xl border border-slate-100 dark:border-slate-800 shadow-sm hover:shadow-md transition-shadow dark:bg-slate-900" elevation={0} sx={{ height: '100%' }}>
+      <CardContent className="flex flex-col gap-4 flex-1 p-5 pb-0">
+        {/* Header */}
+        <div className="flex items-start justify-between gap-3">
+          <div className="flex-1 min-w-0">
+            {/* Company initial avatar */}
+            <div className="flex items-center gap-3 mb-2">
+              <Avatar 
+                variant="rounded"
+                sx={{ 
+                  background: 'linear-gradient(135deg, #6366f1, #9333ea)', 
+                  width: 40, 
+                  height: 40,
+                  fontWeight: 'bold',
+                  fontSize: '0.875rem'
+                }}
+              >
+                {company?.charAt(0).toUpperCase()}
+              </Avatar>
+              <div className="min-w-0">
+                <Typography variant="caption" className="text-slate-500 truncate block">{company}</Typography>
+                <Typography variant="caption" className="text-slate-400 block">{category}</Typography>
+              </div>
             </div>
-            <div className="min-w-0">
-              <p className="text-xs text-slate-500 truncate">{company}</p>
-              <span className="text-xs text-slate-400">{category}</span>
-            </div>
+
+            <Typography 
+              variant="h6" 
+              className="font-semibold text-slate-800 dark:text-white text-base leading-tight group-hover:text-indigo-600 transition-colors line-clamp-2"
+            >
+              {title}
+            </Typography>
           </div>
 
-          <h3 className="font-semibold text-slate-800 dark:text-white text-base leading-tight group-hover:text-indigo-600 transition-colors line-clamp-2">
-            {title}
-          </h3>
+          {/* Bookmark (decorative) */}
+          <Tooltip title="Bookmark Job" placement="top">
+            <IconButton className="text-slate-300 hover:text-indigo-500 hover:bg-indigo-50 transition-colors flex-shrink-0" size="small">
+              <FiBookmark className="w-5 h-5" />
+            </IconButton>
+          </Tooltip>
         </div>
 
-        {/* Bookmark (decorative) */}
-        <button className="p-1.5 rounded-lg text-slate-300 hover:text-indigo-500 hover:bg-indigo-50 transition-colors flex-shrink-0">
-          <FiBookmark className="w-4 h-4" />
-        </button>
-      </div>
+        {/* Meta */}
+        <div className="flex flex-wrap gap-2 text-xs text-slate-500">
+          <Tooltip title="Location"><span className="flex items-center gap-1"><FiMapPin className="w-3 h-3 text-indigo-400" />{location}</span></Tooltip>
+          <Tooltip title="Salary"><span className="flex items-center gap-1"><FiDollarSign className="w-3 h-3 text-emerald-400" />{salary || 'Not Disclosed'}</span></Tooltip>
+          <Tooltip title="Posted"><span className="flex items-center gap-1"><FiClock className="w-3 h-3 text-amber-400" />{timeAgo(createdAt)}</span></Tooltip>
+          {applicationCount > 0 && (
+            <Tooltip title="Applications"><span className="flex items-center gap-1"><FiUsers className="w-3 h-3 text-rose-400" />{applicationCount} applied</span></Tooltip>
+          )}
+        </div>
 
-      {/* Meta */}
-      <div className="flex flex-wrap gap-2 text-xs text-slate-500">
-        <span className="flex items-center gap-1"><FiMapPin className="w-3 h-3 text-indigo-400" />{location}</span>
-        <span className="flex items-center gap-1"><FiDollarSign className="w-3 h-3 text-emerald-400" />{salary || 'Not Disclosed'}</span>
-        <span className="flex items-center gap-1"><FiClock className="w-3 h-3 text-amber-400" />{timeAgo(createdAt)}</span>
-        {applicationCount > 0 && (
-          <span className="flex items-center gap-1"><FiUsers className="w-3 h-3 text-rose-400" />{applicationCount} applied</span>
-        )}
-      </div>
-
-      {/* Tags */}
-      <div className="flex flex-wrap gap-2">
-        <span className={`badge ${jobTypeColors[jobType] || 'bg-slate-100 text-slate-600'}`}>{jobType}</span>
-        <span className={`badge ${expColors[experienceLevel] || 'bg-slate-100 text-slate-600'}`}>{experienceLevel}</span>
-      </div>
+        {/* Tags */}
+        <div className="flex flex-wrap gap-2 mt-2">
+          <Chip 
+            label={jobType} 
+            size="small" 
+            className={`font-medium ${jobTypeColors[jobType] || 'bg-slate-100 text-slate-600'}`} 
+            sx={{ border: 'none', '& .MuiChip-label': { px: 1.5 } }} 
+          />
+          <Chip 
+            label={experienceLevel} 
+            size="small" 
+            className={`font-medium ${expColors[experienceLevel] || 'bg-slate-100 text-slate-600'}`} 
+            sx={{ border: 'none', '& .MuiChip-label': { px: 1.5 } }} 
+          />
+        </div>
+      </CardContent>
 
       {/* Footer */}
-      <div className="mt-auto pt-2 border-t border-slate-50">
-        <Link
+      <CardActions className="mt-auto pt-2 pb-4 px-5 border-t border-slate-50 dark:border-slate-800/50">
+        <Button
+          component={Link}
           to={`/jobs/${_id}`}
-          className="flex items-center justify-center gap-1.5 w-full text-sm font-semibold text-indigo-600 hover:text-indigo-700 group-hover:gap-3 transition-all duration-200"
+          fullWidth
+          className="flex items-center justify-center gap-1.5 text-sm font-semibold text-indigo-600 hover:text-indigo-700 group-hover:gap-3 transition-all duration-200 normal-case"
         >
           View Details <FiArrowRight className="w-4 h-4" />
-        </Link>
-      </div>
-    </div>
+        </Button>
+      </CardActions>
+    </Card>
   );
 }

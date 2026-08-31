@@ -15,23 +15,18 @@ import {
   FiClock, FiTrash2, FiExternalLink, FiFilter, FiSearch,
   FiCheckCircle, FiXCircle, FiAlertCircle,
 } from 'react-icons/fi';
+import {
+  Card, CardContent, Tabs, Tab, Avatar, Button, IconButton,
+  LinearProgress, Collapse, TextField, InputAdornment, Divider
+} from '@mui/material';
 
-// ── Status filter tabs ────────────────────────────────────────────────────────
 const STATUS_TABS = [
-  { label: 'All',       value: '',          icon: FiFileText,    color: 'slate' },
-  { label: 'Applied',   value: 'applied',   icon: FiAlertCircle, color: 'blue' },
-  { label: 'Reviewing', value: 'reviewing', icon: FiClock,       color: 'amber' },
-  { label: 'Selected',  value: 'selected',  icon: FiCheckCircle, color: 'emerald' },
-  { label: 'Rejected',  value: 'rejected',  icon: FiXCircle,     color: 'red' },
+  { label: 'All',       value: '',          icon: <FiFileText />,    color: 'slate' },
+  { label: 'Applied',   value: 'applied',   icon: <FiAlertCircle />, color: 'blue' },
+  { label: 'Reviewing', value: 'reviewing', icon: <FiClock />,       color: 'amber' },
+  { label: 'Selected',  value: 'selected',  icon: <FiCheckCircle />, color: 'emerald' },
+  { label: 'Rejected',  value: 'rejected',  icon: <FiXCircle />,     color: 'red' },
 ];
-
-const TAB_COLORS = {
-  slate:   'border-slate-500   bg-slate-50   text-slate-700',
-  blue:    'border-blue-500    bg-blue-50    text-blue-700',
-  amber:   'border-amber-500   bg-amber-50   text-amber-700',
-  emerald: 'border-emerald-500 bg-emerald-50 text-emerald-700',
-  red:     'border-red-500     bg-red-50     text-red-700',
-};
 
 const timeAgo = (date) => {
   const diff = Math.floor((Date.now() - new Date(date)) / 1000);
@@ -65,7 +60,6 @@ export default function Applications() {
 
   useEffect(() => { fetchApps(); }, [fetchApps]);
 
-  // Apply tab + search filter
   useEffect(() => {
     let result = apps;
     if (activeTab) result = result.filter((a) => a.status === activeTab);
@@ -110,83 +104,114 @@ export default function Applications() {
       {apps.length > 0 && !loading && (
         <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-8">
           {[
-            { label: 'Applied',   count: countByStatus('applied'),   color: 'bg-blue-500',    bg: 'bg-blue-50',    text: 'text-blue-700'    },
-            { label: 'Reviewing', count: countByStatus('reviewing'), color: 'bg-amber-500',   bg: 'bg-amber-50',   text: 'text-amber-700'   },
-            { label: 'Selected',  count: countByStatus('selected'),  color: 'bg-emerald-500', bg: 'bg-emerald-50', text: 'text-emerald-700' },
-            { label: 'Rejected',  count: countByStatus('rejected'),  color: 'bg-red-500',     bg: 'bg-red-50',     text: 'text-red-700'     },
-          ].map(({ label, count, bg, text }) => (
-            <div key={label} className={`card p-4 ${bg} border-none`}>
-              <p className={`text-2xl font-extrabold ${text}`}>{count}</p>
-              <p className={`text-sm font-medium ${text} opacity-80`}>{label}</p>
-              {apps.length > 0 && (
-                <div className="mt-2 h-1.5 bg-white/60 rounded-full overflow-hidden">
-                  <div className={`h-full rounded-full ${text.replace('text','bg')} opacity-70 transition-all duration-500`}
-                    style={{ width: `${(count / apps.length) * 100}%` }} />
-                </div>
-              )}
-            </div>
+            { label: 'Applied',   count: countByStatus('applied'),   barColor: 'primary', bg: 'bg-blue-50',    text: 'text-blue-700'    },
+            { label: 'Reviewing', count: countByStatus('reviewing'), barColor: 'warning', bg: 'bg-amber-50',   text: 'text-amber-700'   },
+            { label: 'Selected',  count: countByStatus('selected'),  barColor: 'success', bg: 'bg-emerald-50', text: 'text-emerald-700' },
+            { label: 'Rejected',  count: countByStatus('rejected'),  barColor: 'error',   bg: 'bg-red-50',     text: 'text-red-700'     },
+          ].map(({ label, count, bg, text, barColor }) => (
+            <Card key={label} className={`${bg} border-none`} elevation={0}>
+              <CardContent className="p-4">
+                <p className={`text-2xl font-extrabold ${text}`}>{count}</p>
+                <p className={`text-sm font-medium ${text} opacity-80`}>{label}</p>
+                {apps.length > 0 && (
+                  <LinearProgress
+                    variant="determinate"
+                    value={(count / apps.length) * 100}
+                    color={barColor}
+                    sx={{ mt: 2, height: 6, borderRadius: 1 }}
+                  />
+                )}
+              </CardContent>
+            </Card>
           ))}
         </div>
       )}
 
       {/* Search + Filter bar */}
       <div className="flex flex-col sm:flex-row gap-3 mb-6">
-        <div className="relative flex-1">
-          <FiSearch className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 w-4 h-4" />
-          <input type="text" value={search} onChange={(e) => setSearch(e.target.value)}
-            placeholder="Search by job title, company, or location..."
-            className="form-input pl-9" />
-        </div>
+        <TextField
+          fullWidth
+          size="small"
+          placeholder="Search by job title, company, or location..."
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+          InputProps={{
+            startAdornment: (
+              <InputAdornment position="start">
+                <FiSearch className="text-slate-400 w-4 h-4" />
+              </InputAdornment>
+            ),
+          }}
+        />
       </div>
 
       {/* Status tabs */}
-      <div className="flex flex-wrap gap-2 mb-6">
-        {STATUS_TABS.map(({ label, value, icon: Icon, color }) => {
+      <Tabs
+        value={activeTab}
+        onChange={(e, val) => setActiveTab(val)}
+        variant="scrollable"
+        scrollButtons="auto"
+        className="mb-6"
+        sx={{ minHeight: 48 }}
+      >
+        {STATUS_TABS.map(({ label, value, icon }) => {
           const cnt = value ? countByStatus(value) : apps.length;
-          const isActive = activeTab === value;
           return (
-            <button key={value} onClick={() => setActiveTab(value)}
-              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl border text-sm font-medium transition-all duration-150 ${
-                isActive ? `${TAB_COLORS[color]} border-current shadow-sm` : 'border-slate-200 text-slate-600 hover:border-slate-300 bg-white dark:bg-slate-800 dark:text-slate-300'
-              }`}>
-              <Icon className="w-3.5 h-3.5" /> {label}
-              <span className={`ml-1 text-xs px-1.5 py-0.5 rounded-full font-bold ${isActive ? 'bg-white/60' : 'bg-slate-100 dark:bg-slate-700'}`}>{cnt}</span>
-            </button>
+            <Tab
+              key={value}
+              value={value}
+              label={<span className="flex items-center gap-1.5">{label} <span className="text-xs px-1.5 py-0.5 rounded-full font-bold bg-slate-100 text-slate-700">{cnt}</span></span>}
+              icon={icon}
+              iconPosition="start"
+              sx={{ minHeight: 48 }}
+            />
           );
         })}
-      </div>
+      </Tabs>
 
       {/* Application list */}
       {loading ? (
         <Spinner />
       ) : filtered.length === 0 ? (
-        <div className="card p-16 text-center">
-          <FiFileText className="w-12 h-12 mx-auto mb-4 text-indigo-500" />
-          <h3 className="text-lg font-semibold text-slate-700 dark:text-white mb-2">
-            {activeTab || search ? 'No matching applications' : 'No applications yet'}
-          </h3>
-          <p className="text-slate-500 mb-5 text-sm">
-            {activeTab || search ? 'Try a different filter or search term.' : 'Start applying to jobs and track your progress here.'}
-          </p>
-          {!activeTab && !search && (
-            <Link to="/jobs" className="btn-primary">Browse Jobs</Link>
-          )}
-        </div>
+        <Card className="p-16 text-center">
+          <CardContent>
+            <FiFileText className="w-12 h-12 mx-auto mb-4 text-indigo-500" />
+            <h3 className="text-lg font-semibold text-slate-700 dark:text-white mb-2">
+              {activeTab || search ? 'No matching applications' : 'No applications yet'}
+            </h3>
+            <p className="text-slate-500 mb-5 text-sm">
+              {activeTab || search ? 'Try a different filter or search term.' : 'Start applying to jobs and track your progress here.'}
+            </p>
+            {!activeTab && !search && (
+              <Button variant="contained" component={Link} to="/jobs">Browse Jobs</Button>
+            )}
+          </CardContent>
+        </Card>
       ) : (
         <div className="space-y-3">
           {filtered.map((app) => {
             const job = app.jobId;
             const isExpanded = expanded === app._id;
+            const steps = ['applied','reviewing','selected'];
+            const isRejected = app.status === 'rejected';
+            const progressValue = isRejected ? 100 : ((steps.indexOf(app.status) + 1) / steps.length) * 100;
 
             return (
-              <div key={app._id} className={`card overflow-hidden transition-all duration-200 ${isExpanded ? 'border-indigo-200 shadow-indigo-50' : ''}`}>
-                {/* Main row */}
-                <div className="p-5">
+              <Card key={app._id} className={`overflow-hidden transition-all duration-200 ${isExpanded ? 'border-indigo-200 shadow-indigo-50' : ''}`}>
+                <CardContent className="p-5">
                   <div className="flex items-start gap-4">
-                    {/* Company avatar */}
-                    <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-indigo-500 to-violet-600 text-white font-bold text-lg flex items-center justify-center flex-shrink-0">
+                    <Avatar
+                      sx={{
+                        width: 48,
+                        height: 48,
+                        background: 'linear-gradient(to bottom right, #6366f1, #7c3aed)',
+                        fontWeight: 'bold',
+                        fontSize: '1.125rem'
+                      }}
+                      variant="rounded"
+                    >
                       {job?.company?.charAt(0) || '?'}
-                    </div>
+                    </Avatar>
 
                     <div className="flex-1 min-w-0">
                       <div className="flex items-start justify-between gap-2 flex-wrap">
@@ -199,49 +224,52 @@ export default function Applications() {
                         <StatusBadge status={app.status} />
                       </div>
 
-                      {/* Meta */}
                       <div className="flex flex-wrap gap-3 mt-2 text-xs text-slate-400">
-                        {job?.location && (
-                          <span className="flex items-center gap-1"><FiMapPin className="w-3 h-3" />{job.location}</span>
-                        )}
-                        {job?.salary && (
-                          <span className="flex items-center gap-1"><FiDollarSign className="w-3 h-3" />{job.salary}</span>
-                        )}
-                        {job?.jobType && (
-                          <span className="flex items-center gap-1"><FiBriefcase className="w-3 h-3" />{job.jobType}</span>
-                        )}
+                        {job?.location && <span className="flex items-center gap-1"><FiMapPin className="w-3 h-3" />{job.location}</span>}
+                        {job?.salary && <span className="flex items-center gap-1"><FiDollarSign className="w-3 h-3" />{job.salary}</span>}
+                        {job?.jobType && <span className="flex items-center gap-1"><FiBriefcase className="w-3 h-3" />{job.jobType}</span>}
                         <span className="flex items-center gap-1"><FiClock className="w-3 h-3" />Applied {timeAgo(app.createdAt)}</span>
                       </div>
 
-                      {/* Actions */}
                       <div className="flex items-center gap-2 mt-3">
                         {job?._id && (
-                          <Link to={`/jobs/${job._id}`}
-                            className="flex items-center gap-1.5 text-xs text-indigo-600 hover:text-indigo-800 font-medium transition-colors">
-                            <FiExternalLink className="w-3 h-3" /> View Job
-                          </Link>
+                          <Button
+                            component={Link}
+                            to={`/jobs/${job._id}`}
+                            size="small"
+                            startIcon={<FiExternalLink />}
+                            sx={{ textTransform: 'none', minWidth: 0, padding: '4px 8px' }}
+                          >
+                            View Job
+                          </Button>
                         )}
                         {(app.coverLetter || app.resume) && (
-                          <button onClick={() => setExpanded(isExpanded ? null : app._id)}
-                            className="text-xs text-slate-500 hover:text-slate-700 font-medium transition-colors ml-2">
+                          <Button
+                            onClick={() => setExpanded(isExpanded ? null : app._id)}
+                            size="small"
+                            sx={{ textTransform: 'none', color: 'text.secondary', ml: 1 }}
+                          >
                             {isExpanded ? '▲ Less' : '▼ Details'}
-                          </button>
+                          </Button>
                         )}
-                        <button
+                        <Button
                           onClick={() => handleWithdraw(app._id)}
                           disabled={withdrawing === app._id}
-                          className="ml-auto flex items-center gap-1 text-xs text-red-400 hover:text-red-600 font-medium transition-colors disabled:opacity-50">
-                          <FiTrash2 className="w-3.5 h-3.5" />
+                          size="small"
+                          color="error"
+                          startIcon={<FiTrash2 />}
+                          sx={{ ml: 'auto', textTransform: 'none' }}
+                        >
                           {withdrawing === app._id ? 'Withdrawing...' : 'Withdraw'}
-                        </button>
+                        </Button>
                       </div>
                     </div>
                   </div>
-                </div>
+                </CardContent>
 
-                {/* Expanded details */}
-                {isExpanded && (
-                  <div className="border-t border-slate-100 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/40 px-5 py-4 space-y-3 animate-slide-up">
+                <Collapse in={isExpanded}>
+                  <Divider />
+                  <div className="bg-slate-50 dark:bg-slate-800/40 px-5 py-4 space-y-3">
                     {app.resume && (
                       <div>
                         <p className="text-xs font-semibold text-slate-500 uppercase tracking-wide mb-1">Resume</p>
@@ -260,46 +288,31 @@ export default function Applications() {
                       </div>
                     )}
                   </div>
-                )}
+                </Collapse>
 
-                {/* Status progress bar */}
-                <div className="px-5 pb-3">
-                  <div className="flex items-center gap-1">
-                    {['applied','reviewing','selected','rejected'].map((s, i) => {
-                      const steps = ['applied','reviewing','selected'];
-                      const isRejected = app.status === 'rejected';
-                      const idx = steps.indexOf(app.status);
-                      const filled = isRejected
-                        ? s === 'rejected'
-                        : s !== 'rejected' && steps.indexOf(s) <= idx;
-                      return (
-                        <React.Fragment key={s}>
-                          <div className={`h-1.5 flex-1 rounded-full transition-colors ${
-                            filled
-                              ? isRejected ? 'bg-red-400' : 'bg-indigo-500'
-                              : 'bg-slate-200 dark:bg-slate-700'
-                          }`} />
-                        </React.Fragment>
-                      );
-                    })}
-                  </div>
+                <div className="px-5 pb-3 pt-1">
+                  <LinearProgress
+                    variant="determinate"
+                    value={progressValue}
+                    color={isRejected ? 'error' : 'primary'}
+                    sx={{ height: 6, borderRadius: 1 }}
+                  />
                   <div className="flex justify-between text-xs text-slate-400 mt-1">
                     <span>Applied</span>
                     <span>Reviewing</span>
                     <span>Decision</span>
                   </div>
                 </div>
-              </div>
+              </Card>
             );
           })}
         </div>
       )}
 
-      {/* Footer CTA */}
       {filtered.length > 0 && (
         <div className="mt-8 text-center">
           <p className="text-slate-500 text-sm mb-3">Looking for more opportunities?</p>
-          <Link to="/jobs" className="btn-primary">Browse All Jobs</Link>
+          <Button variant="contained" component={Link} to="/jobs">Browse All Jobs</Button>
         </div>
       )}
     </div>

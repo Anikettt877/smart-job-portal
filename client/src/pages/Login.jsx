@@ -3,6 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { FiBriefcase, FiMail, FiLock, FiEye, FiEyeOff } from 'react-icons/fi';
 import toast from 'react-hot-toast';
+import { Card, CardContent, TextField, Button, Avatar, IconButton, InputAdornment, Box } from '@mui/material';
 
 export default function Login() {
   const { login } = useAuth();
@@ -33,47 +34,85 @@ export default function Login() {
   return (
     <div className="min-h-[calc(100vh-64px)] flex items-center justify-center px-4 py-12 bg-gradient-to-br from-indigo-50 via-white to-violet-50">
       <div className="w-full max-w-md animate-slide-up">
-        <div className="text-center mb-8">
-          <div className="inline-flex items-center justify-center w-14 h-14 rounded-2xl bg-indigo-600 text-white mb-4 shadow-lg shadow-indigo-200">
-            <FiBriefcase className="w-7 h-7" />
-          </div>
+        <div className="text-center mb-8 flex flex-col items-center">
+          <Avatar sx={{ bgcolor: 'primary.main', mb: 2, width: 56, height: 56, boxShadow: 3 }}>
+            <FiBriefcase size={28} />
+          </Avatar>
           <h1 className="text-2xl font-bold text-slate-800">Welcome back!</h1>
           <p className="text-slate-500 mt-1 text-sm">Sign in to your SmartHire account</p>
         </div>
 
-        <div className="card p-8">
-          <form onSubmit={onSubmit} className="space-y-5">
-            <div>
-              <label className="form-label">Email Address</label>
-              <div className="relative">
-                <FiMail className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 w-4 h-4" />
-                <input name="email" type="email" placeholder="you@example.com"
-                  value={form.email} onChange={onChange} className="form-input pl-10" required />
+        <Card elevation={3} sx={{ borderRadius: 3 }}>
+          <CardContent sx={{ p: 4 }}>
+            <form onSubmit={onSubmit} className="space-y-5">
+              <div>
+                <label className="block text-sm font-medium text-slate-700 mb-1">Email Address</label>
+                <TextField
+                  fullWidth
+                  size="small"
+                  name="email"
+                  type="email"
+                  placeholder="you@example.com"
+                  value={form.email}
+                  onChange={onChange}
+                  required
+                  InputProps={{
+                    startAdornment: (
+                      <InputAdornment position="start">
+                        <FiMail className="text-slate-400" />
+                      </InputAdornment>
+                    ),
+                  }}
+                />
               </div>
-            </div>
-            <div>
-              <div className="flex items-center justify-between mb-1">
-                <label className="form-label mb-0">Password</label>
-                <Link to="/forgot-password" className="text-xs text-indigo-600 hover:underline font-medium">
-                  Forgot password?
-                </Link>
+              <div>
+                <div className="flex items-center justify-between mb-1">
+                  <label className="block text-sm font-medium text-slate-700 mb-0">Password</label>
+                  <Link to="/forgot-password" className="text-xs text-indigo-600 hover:underline font-medium">
+                    Forgot password?
+                  </Link>
+                </div>
+                <TextField
+                  fullWidth
+                  size="small"
+                  name="password"
+                  type={showPass ? 'text' : 'password'}
+                  placeholder="Enter your password"
+                  value={form.password}
+                  onChange={onChange}
+                  required
+                  InputProps={{
+                    startAdornment: (
+                      <InputAdornment position="start">
+                        <FiLock className="text-slate-400" />
+                      </InputAdornment>
+                    ),
+                    endAdornment: (
+                      <InputAdornment position="end">
+                        <IconButton
+                          onClick={() => setShowPass(!showPass)}
+                          edge="end"
+                          size="small"
+                        >
+                          {showPass ? <FiEyeOff /> : <FiEye />}
+                        </IconButton>
+                      </InputAdornment>
+                    ),
+                  }}
+                />
               </div>
-              <div className="relative">
-                <FiLock className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 w-4 h-4" />
-                <input name="password" type={showPass ? 'text' : 'password'}
-                  placeholder="Enter your password" value={form.password} onChange={onChange}
-                  className="form-input pl-10 pr-10" required />
-                <button type="button" onClick={() => setShowPass(!showPass)}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400">
-                  {showPass ? <FiEyeOff className="w-4 h-4" /> : <FiEye className="w-4 h-4" />}
-                </button>
-              </div>
-            </div>
-            <button type="submit" disabled={loading} className="btn-primary w-full py-3 text-base">
-              {loading ? 'Signing in...' : 'Sign In'}
-            </button>
-          </form>
-        </div>
+              <Button
+                type="submit"
+                variant="contained"
+                fullWidth
+                disabled={loading}
+                sx={{ py: 1.5, textTransform: 'none', fontSize: '1rem', borderRadius: 2 }}
+              >
+                {loading ? 'Signing in...' : 'Sign In'}
+              </Button>
+            </form>
+          </CardContent>
+        </Card>
 
         <p className="text-center text-sm text-slate-500 mt-5">
           Don't have an account?{' '}

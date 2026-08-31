@@ -4,6 +4,7 @@ import axiosInstance from '../services/axiosInstance';
 import toast from 'react-hot-toast';
 import { FiMail, FiArrowLeft } from 'react-icons/fi';
 import { useAuth } from '../context/AuthContext';
+import { Card, CardContent, TextField, Button, Avatar, Box } from '@mui/material';
 
 export default function VerifyEmail() {
   const navigate = useNavigate();
@@ -74,47 +75,93 @@ export default function VerifyEmail() {
   return (
     <div className="min-h-[calc(100vh-64px)] flex items-center justify-center px-4 py-12 bg-gradient-to-br from-indigo-50 via-white to-violet-50">
       <div className="w-full max-w-md animate-slide-up">
-        <div className="text-center mb-8">
-          <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-indigo-100 mb-4">
-            <FiMail className="w-8 h-8 text-indigo-600" />
-          </div>
+        <div className="text-center mb-8 flex flex-col items-center">
+          <Avatar sx={{ bgcolor: 'primary.100', color: 'primary.main', mb: 2, width: 64, height: 64 }}>
+            <FiMail size={32} />
+          </Avatar>
           <h1 className="text-2xl font-bold text-slate-800">Verify Your Email</h1>
           <p className="text-slate-500 mt-2 text-sm">
             OTP sent to <span className="font-semibold text-indigo-600">{email}</span>
           </p>
         </div>
 
-        <div className="card p-8">
-          <div className="flex gap-3 justify-center mb-6" onPaste={handlePaste}>
-            {otp.map((digit, index) => (
-              <input key={index} ref={(el) => (inputs.current[index] = el)}
-                type="text" inputMode="numeric" maxLength={1} value={digit}
-                onChange={(e) => handleChange(index, e.target.value)}
-                onKeyDown={(e) => handleKeyDown(index, e)}
-                className={`w-12 h-12 text-center text-xl font-bold border-2 rounded-xl transition-all focus:outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 ${
-                  digit ? 'border-indigo-400 bg-indigo-50 text-indigo-700' : 'border-slate-200 bg-white'}`}
-              />
-            ))}
-          </div>
+        <Card elevation={3} sx={{ borderRadius: 3 }}>
+          <CardContent sx={{ p: 4 }}>
+            <Box className="flex gap-2 sm:gap-3 justify-center mb-6" onPaste={handlePaste}>
+              {otp.map((digit, index) => (
+                <TextField
+                  key={index}
+                  inputRef={(el) => (inputs.current[index] = el)}
+                  variant="outlined"
+                  value={digit}
+                  onChange={(e) => handleChange(index, e.target.value)}
+                  onKeyDown={(e) => handleKeyDown(index, e)}
+                  inputProps={{
+                    inputMode: 'numeric',
+                    maxLength: 1,
+                    sx: {
+                      textAlign: 'center',
+                      fontSize: '1.25rem',
+                      fontWeight: 'bold',
+                      p: 1.5,
+                      width: '1.5rem',
+                      height: '1.5rem',
+                      bgcolor: digit ? 'primary.50' : 'background.paper',
+                    }
+                  }}
+                  sx={{
+                    '& .MuiOutlinedInput-root': {
+                      borderRadius: 2,
+                      '& fieldset': {
+                        borderColor: digit ? 'primary.400' : 'divider',
+                        borderWidth: 2,
+                      },
+                      '&:hover fieldset': {
+                        borderColor: 'primary.main',
+                      },
+                      '&.Mui-focused fieldset': {
+                        borderColor: 'primary.main',
+                      },
+                    }
+                  }}
+                />
+              ))}
+            </Box>
 
-          <button onClick={handleVerify} disabled={loading || otp.join('').length !== 6} className="btn-primary w-full py-3 mb-4">
-            {loading ? 'Verifying...' : 'Verify Email'}
-          </button>
+            <Button 
+              onClick={handleVerify} 
+              disabled={loading || otp.join('').length !== 6} 
+              variant="contained"
+              fullWidth
+              sx={{ py: 1.5, textTransform: 'none', fontSize: '1rem', borderRadius: 2, mb: 3 }}
+            >
+              {loading ? 'Verifying...' : 'Verify Email'}
+            </Button>
 
-          <div className="text-center">
-            {countdown > 0 ? (
-              <p className="text-sm text-slate-500">Resend in <span className="font-bold text-indigo-600">{countdown}s</span></p>
-            ) : (
-              <button onClick={handleResend} disabled={resending} className="text-sm font-semibold text-indigo-600 hover:underline">
-                {resending ? 'Sending...' : 'Resend OTP'}
-              </button>
-            )}
-          </div>
-        </div>
+            <div className="text-center">
+              {countdown > 0 ? (
+                <p className="text-sm text-slate-500">Resend in <span className="font-bold text-indigo-600">{countdown}s</span></p>
+              ) : (
+                <Button 
+                  onClick={handleResend} 
+                  disabled={resending} 
+                  color="primary"
+                  sx={{ textTransform: 'none', fontWeight: 600 }}
+                >
+                  {resending ? 'Sending...' : 'Resend OTP'}
+                </Button>
+              )}
+            </div>
+          </CardContent>
+        </Card>
 
-        <button onClick={() => navigate('/register')} className="flex items-center gap-2 text-sm text-slate-500 hover:text-indigo-600 mx-auto mt-5">
-          <FiArrowLeft className="w-4 h-4" /> Back to Register
-        </button>
+        <Button 
+          onClick={() => navigate('/register')} 
+          startIcon={<FiArrowLeft />}
+          sx={{ mt: 3, mx: 'auto', display: 'flex', color: 'text.secondary', textTransform: 'none' }}
+        >
+          Back to Register
+        </Button>
       </div>
     </div>
   );

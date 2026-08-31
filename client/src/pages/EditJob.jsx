@@ -2,7 +2,11 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { jobAPI } from '../services/api';
 import toast from 'react-hot-toast';
-import { FiPlus, FiX } from 'react-icons/fi';
+import {
+  Container, Typography, Card, CardContent, TextField,
+  FormControl, InputLabel, Select, MenuItem, Button, Chip,
+  Checkbox, FormControlLabel, CircularProgress
+} from '@mui/material';
 
 const JOB_TYPES  = ['Full-time','Part-time','Remote','Internship','Contract'];
 const CATEGORIES = ['Technology','Design','Marketing','Sales','Finance','Healthcare','Education','Engineering','HR','Other'];
@@ -62,89 +66,123 @@ export default function EditJob() {
     } finally { setLoading(false); }
   };
 
-  if (fetching) return <div className="flex justify-center items-center min-h-64"><div className="w-8 h-8 border-4 border-indigo-200 border-t-indigo-600 rounded-full animate-spin"/></div>;
+  if (fetching) return <div className="flex justify-center items-center min-h-64"><CircularProgress /></div>;
 
   return (
-    <div className="container-app py-10 max-w-3xl animate-fade-in">
-      <h1 className="text-3xl font-bold text-slate-800 dark:text-white mb-8">Edit Job</h1>
+    <Container className="py-10 max-w-3xl animate-fade-in" maxWidth="md">
+      <Typography variant="h4" component="h1" className="font-bold text-slate-800 dark:text-white mb-8" sx={{ fontWeight: 700 }}>
+        Edit Job
+      </Typography>
 
       <form onSubmit={onSubmit} className="space-y-6">
-        <div className="card p-6 space-y-4">
-          <h2 className="font-semibold text-slate-800 dark:text-white border-b border-slate-100 pb-3">Basic Information</h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {[['title','Job Title'],['company','Company'],['location','Location'],['salary','Salary']].map(([name, label]) => (
-              <div key={name}>
-                <label className="form-label">{label}</label>
-                <input name={name} value={form[name]} onChange={onChange} className="form-input" />
-              </div>
-            ))}
-          </div>
-        </div>
+        <Card sx={{ boxShadow: 1, borderRadius: 2 }}>
+          <CardContent className="space-y-4 p-6">
+            <Typography variant="h6" className="font-semibold text-slate-800 dark:text-white border-b border-slate-100 pb-3" sx={{ fontWeight: 600 }}>
+              Basic Information
+            </Typography>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {[['title','Job Title'],['company','Company'],['location','Location'],['salary','Salary']].map(([name, label]) => (
+                <TextField key={name} name={name} label={label} value={form[name]} onChange={onChange} fullWidth size="small" required={name !== 'salary'} />
+              ))}
+            </div>
+          </CardContent>
+        </Card>
 
-        <div className="card p-6 space-y-4">
-          <h2 className="font-semibold text-slate-800 dark:text-white border-b border-slate-100 pb-3">Classification</h2>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <div>
-              <label className="form-label">Job Type</label>
-              <select name="jobType" value={form.jobType} onChange={onChange} className="form-input">
-                {JOB_TYPES.map((t) => <option key={t}>{t}</option>)}
-              </select>
+        <Card sx={{ boxShadow: 1, borderRadius: 2 }}>
+          <CardContent className="space-y-4 p-6">
+            <Typography variant="h6" className="font-semibold text-slate-800 dark:text-white border-b border-slate-100 pb-3" sx={{ fontWeight: 600 }}>
+              Classification
+            </Typography>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <FormControl fullWidth size="small">
+                <InputLabel>Job Type</InputLabel>
+                <Select name="jobType" value={form.jobType} onChange={onChange} label="Job Type">
+                  {JOB_TYPES.map((t) => <MenuItem key={t} value={t}>{t}</MenuItem>)}
+                </Select>
+              </FormControl>
+              <FormControl fullWidth size="small">
+                <InputLabel>Category</InputLabel>
+                <Select name="category" value={form.category} onChange={onChange} label="Category">
+                  {CATEGORIES.map((c) => <MenuItem key={c} value={c}>{c}</MenuItem>)}
+                </Select>
+              </FormControl>
+              <FormControl fullWidth size="small">
+                <InputLabel>Experience Level</InputLabel>
+                <Select name="experienceLevel" value={form.experienceLevel} onChange={onChange} label="Experience Level">
+                  {EXP_LEVELS.map((l) => <MenuItem key={l} value={l}>{l}</MenuItem>)}
+                </Select>
+              </FormControl>
             </div>
             <div>
-              <label className="form-label">Category</label>
-              <select name="category" value={form.category} onChange={onChange} className="form-input">
-                {CATEGORIES.map((c) => <option key={c}>{c}</option>)}
-              </select>
+              <TextField
+                type="date"
+                name="deadline"
+                label="Application Deadline"
+                value={form.deadline}
+                onChange={onChange}
+                InputLabelProps={{ shrink: true }}
+                size="small"
+                fullWidth
+                sx={{ maxWidth: 200 }}
+              />
             </div>
-            <div>
-              <label className="form-label">Experience Level</label>
-              <select name="experienceLevel" value={form.experienceLevel} onChange={onChange} className="form-input">
-                {EXP_LEVELS.map((l) => <option key={l}>{l}</option>)}
-              </select>
+            <div className="mt-4">
+              <FormControlLabel
+                control={<Checkbox id="isActive" name="isActive" checked={form.isActive} onChange={onChange} color="primary" />}
+                label="Job is active (visible to applicants)"
+              />
             </div>
-          </div>
-          <div className="flex items-center gap-3">
-            <input type="checkbox" id="isActive" name="isActive" checked={form.isActive} onChange={onChange}
-              className="w-4 h-4 rounded text-indigo-600 border-slate-300 focus:ring-indigo-500 cursor-pointer" />
-            <label htmlFor="isActive" className="text-sm font-medium text-slate-700 cursor-pointer">
-              Job is active (visible to applicants)
-            </label>
-          </div>
-        </div>
+          </CardContent>
+        </Card>
 
-        <div className="card p-6 space-y-4">
-          <h2 className="font-semibold text-slate-800 dark:text-white border-b border-slate-100 pb-3">Job Details</h2>
-          <div>
-            <label className="form-label">Description</label>
-            <textarea name="description" value={form.description} onChange={onChange} rows={7} className="form-input resize-none" />
-          </div>
-          <div>
-            <label className="form-label">Requirements</label>
-            <div className="flex gap-2">
-              <input value={reqInput} onChange={(e) => setReqInput(e.target.value)}
-                onKeyDown={(e) => e.key==='Enter' && (e.preventDefault(), addReq())}
-                placeholder="Add a requirement..." className="form-input flex-1" />
-              <button type="button" onClick={addReq} className="btn-secondary"><FiPlus className="w-4 h-4" /></button>
+        <Card sx={{ boxShadow: 1, borderRadius: 2 }}>
+          <CardContent className="space-y-4 p-6">
+            <Typography variant="h6" className="font-semibold text-slate-800 dark:text-white border-b border-slate-100 pb-3" sx={{ fontWeight: 600 }}>
+              Job Details
+            </Typography>
+            <div>
+              <TextField
+                name="description"
+                label="Description"
+                value={form.description}
+                onChange={onChange}
+                multiline
+                rows={7}
+                fullWidth
+                required
+              />
             </div>
-            {form.requirements.length > 0 && (
-              <div className="flex flex-wrap gap-2 mt-3">
-                {form.requirements.map((req, i) => (
-                  <span key={i} className="flex items-center gap-1.5 px-3 py-1.5 bg-indigo-50 text-indigo-700 rounded-xl text-sm border border-indigo-100">
-                    {req} <button type="button" onClick={() => removeReq(i)}><FiX className="w-3 h-3 hover:text-red-500" /></button>
-                  </span>
-                ))}
+            <div>
+              <Typography variant="body2" className="mb-2 text-slate-700">Requirements</Typography>
+              <div className="flex gap-2">
+                <TextField
+                  value={reqInput}
+                  onChange={(e) => setReqInput(e.target.value)}
+                  onKeyDown={(e) => e.key==='Enter' && (e.preventDefault(), addReq())}
+                  placeholder="Add a requirement..."
+                  fullWidth
+                  size="small"
+                />
+                <Button type="button" onClick={addReq} variant="outlined" color="primary">Add</Button>
               </div>
-            )}
-          </div>
-        </div>
+              {form.requirements.length > 0 && (
+                <div className="flex flex-wrap gap-2 mt-3">
+                  {form.requirements.map((req, i) => (
+                    <Chip key={i} label={req} onDelete={() => removeReq(i)} color="primary" variant="outlined" />
+                  ))}
+                </div>
+              )}
+            </div>
+          </CardContent>
+        </Card>
 
         <div className="flex gap-3">
-          <button type="button" onClick={() => navigate(`/jobs/${id}`)} className="btn-secondary flex-1">Cancel</button>
-          <button type="submit" disabled={loading} className="btn-primary flex-1 py-3">
+          <Button type="button" onClick={() => navigate(`/jobs/${id}`)} variant="outlined" color="inherit" fullWidth sx={{ py: 1.5, textTransform: 'none' }}>Cancel</Button>
+          <Button type="submit" disabled={loading} variant="contained" color="primary" fullWidth sx={{ py: 1.5, textTransform: 'none' }}>
             {loading ? 'Saving...' : 'Save Changes'}
-          </button>
+          </Button>
         </div>
       </form>
-    </div>
+    </Container>
   );
 }

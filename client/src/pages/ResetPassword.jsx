@@ -4,6 +4,7 @@ import axiosInstance from '../services/axiosInstance';
 import toast from 'react-hot-toast';
 import { FiLock, FiEye, FiEyeOff, FiMail } from 'react-icons/fi';
 import { useAuth } from '../context/AuthContext';
+import { Card, CardContent, TextField, Button, Avatar, IconButton, InputAdornment } from '@mui/material';
 
 export default function ResetPassword() {
   const navigate   = useNavigate();
@@ -35,68 +36,118 @@ export default function ResetPassword() {
   return (
     <div className="min-h-[calc(100vh-64px)] flex items-center justify-center px-4 py-12 bg-gradient-to-br from-indigo-50 via-white to-violet-50">
       <div className="w-full max-w-md animate-slide-up">
-        <div className="text-center mb-8">
-          <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-indigo-100 mb-4">
-            <FiLock className="w-8 h-8 text-indigo-600" />
-          </div>
+        <div className="text-center mb-8 flex flex-col items-center">
+          <Avatar sx={{ bgcolor: 'primary.100', color: 'primary.main', mb: 2, width: 64, height: 64 }}>
+            <FiLock size={32} />
+          </Avatar>
           <h1 className="text-2xl font-bold text-slate-800">Set New Password</h1>
         </div>
 
-        <div className="card p-8">
-          <form onSubmit={handleSubmit} className="space-y-4">
-            <div>
-              <label className="form-label">Email Address</label>
-              <div className="relative">
-                <FiMail className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 w-4 h-4" />
-                <input type="email" value={form.email}
+        <Card elevation={3} sx={{ borderRadius: 3 }}>
+          <CardContent sx={{ p: 4 }}>
+            <form onSubmit={handleSubmit} className="space-y-4">
+              <div>
+                <label className="block text-sm font-medium text-slate-700 mb-1">Email Address</label>
+                <TextField
+                  fullWidth
+                  size="small"
+                  type="email"
+                  value={form.email}
                   onChange={(e) => setForm({ ...form, email: e.target.value })}
-                  placeholder="you@example.com" className="form-input pl-10" required />
+                  placeholder="you@example.com"
+                  required
+                  InputProps={{
+                    startAdornment: (
+                      <InputAdornment position="start">
+                        <FiMail className="text-slate-400" />
+                      </InputAdornment>
+                    ),
+                  }}
+                />
               </div>
-            </div>
 
-            <div>
-              <label className="form-label">OTP</label>
-              <div className="relative">
-                <FiLock className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 w-4 h-4" />
-                <input type="text" value={form.otp}
+              <div>
+                <label className="block text-sm font-medium text-slate-700 mb-1">OTP</label>
+                <TextField
+                  fullWidth
+                  size="small"
+                  type="text"
+                  value={form.otp}
                   onChange={(e) => setForm({ ...form, otp: e.target.value.replace(/\D/g, '').slice(0, 6) })}
-                  placeholder="6-digit code" className="form-input pl-10" required />
+                  placeholder="6-digit code"
+                  required
+                  InputProps={{
+                    startAdornment: (
+                      <InputAdornment position="start">
+                        <FiLock className="text-slate-400" />
+                      </InputAdornment>
+                    ),
+                  }}
+                />
               </div>
-            </div>
 
-            <div>
-              <label className="form-label">New Password</label>
-              <div className="relative">
-                <FiLock className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 w-4 h-4" />
-                <input type={showPass ? 'text' : 'password'} value={form.password}
+              <div>
+                <label className="block text-sm font-medium text-slate-700 mb-1">New Password</label>
+                <TextField
+                  fullWidth
+                  size="small"
+                  type={showPass ? 'text' : 'password'}
+                  value={form.password}
                   onChange={(e) => setForm({ ...form, password: e.target.value })}
-                  placeholder="At least 6 characters" className="form-input pl-10 pr-10" required minLength={6} />
-                <button type="button" onClick={() => setShowPass(!showPass)}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400">
-                  {showPass ? <FiEyeOff className="w-4 h-4" /> : <FiEye className="w-4 h-4" />}
-                </button>
+                  placeholder="At least 6 characters"
+                  required
+                  inputProps={{ minLength: 6 }}
+                  InputProps={{
+                    startAdornment: (
+                      <InputAdornment position="start">
+                        <FiLock className="text-slate-400" />
+                      </InputAdornment>
+                    ),
+                    endAdornment: (
+                      <InputAdornment position="end">
+                        <IconButton onClick={() => setShowPass(!showPass)} edge="end" size="small">
+                          {showPass ? <FiEyeOff /> : <FiEye />}
+                        </IconButton>
+                      </InputAdornment>
+                    ),
+                  }}
+                />
               </div>
-            </div>
 
-            <div>
-              <label className="form-label">Confirm Password</label>
-              <div className="relative">
-                <FiLock className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 w-4 h-4" />
-                <input type={showPass ? 'text' : 'password'} value={form.confirm}
+              <div>
+                <label className="block text-sm font-medium text-slate-700 mb-1">Confirm Password</label>
+                <TextField
+                  fullWidth
+                  size="small"
+                  type={showPass ? 'text' : 'password'}
+                  value={form.confirm}
                   onChange={(e) => setForm({ ...form, confirm: e.target.value })}
                   placeholder="Re-enter password"
-                  className={`form-input pl-10 ${form.confirm && form.password !== form.confirm ? 'border-red-400' : ''}`} required />
+                  required
+                  error={Boolean(form.confirm && form.password !== form.confirm)}
+                  helperText={form.confirm && form.password !== form.confirm ? "Passwords do not match" : ""}
+                  InputProps={{
+                    startAdornment: (
+                      <InputAdornment position="start">
+                        <FiLock className="text-slate-400" />
+                      </InputAdornment>
+                    ),
+                  }}
+                />
               </div>
-              {form.confirm && form.password !== form.confirm && (
-                <p className="text-xs text-red-500 mt-1">Passwords do not match</p>
-              )}
-            </div>
 
-            <button type="submit" disabled={loading} className="btn-primary w-full py-3">
-              {loading ? 'Resetting...' : 'Reset Password'}
-            </button>
-          </form>
-        </div>
+              <Button
+                type="submit"
+                variant="contained"
+                fullWidth
+                disabled={loading}
+                sx={{ py: 1.5, textTransform: 'none', fontSize: '1rem', borderRadius: 2 }}
+              >
+                {loading ? 'Resetting...' : 'Reset Password'}
+              </Button>
+            </form>
+          </CardContent>
+        </Card>
 
         <Link to="/login" className="flex items-center gap-2 text-sm text-slate-500 hover:text-indigo-600 mx-auto mt-5 justify-center">
           Back to Login

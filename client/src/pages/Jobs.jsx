@@ -1,15 +1,15 @@
-/**
- * Jobs Page
- * Browse all jobs with search, filters, and pagination
- */
-
 import React, { useState, useEffect, useCallback } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { jobAPI } from '../services/api';
 import JobCard from '../components/JobCard';
 import Spinner from '../components/Spinner';
-import { FiSearch, FiFilter, FiX, FiChevronLeft, FiChevronRight } from 'react-icons/fi';
+import { FiSearch, FiFilter } from 'react-icons/fi';
 import toast from 'react-hot-toast';
+import {
+  Container, TextField, InputAdornment, Button, IconButton,
+  FormControl, InputLabel, Select, MenuItem, Chip, Pagination,
+  Typography, Card, CardContent
+} from '@mui/material';
 
 const JOB_TYPES    = ['Full-time', 'Part-time', 'Remote', 'Internship', 'Contract'];
 const CATEGORIES   = ['Technology','Design','Marketing','Sales','Finance','Healthcare','Education','Engineering','HR','Other'];
@@ -69,77 +69,112 @@ export default function Jobs() {
     setFilters((prev) => ({ ...prev, page: 1 }));
   };
 
+  const handlePageChange = (event, value) => {
+    setFilters((prev) => ({ ...prev, page: value }));
+  };
+
   return (
-    <div className="container-app py-10 animate-fade-in">
+    <Container className="py-10 animate-fade-in" maxWidth="lg">
       {/* Header */}
       <div className="mb-8">
-        <h1 className="text-3xl font-bold text-slate-800 dark:text-white mb-1">Find Your Next Job</h1>
-        <p className="text-slate-500 dark:text-slate-400">
+        <Typography variant="h4" component="h1" className="font-bold text-slate-800 dark:text-white mb-1" sx={{ fontWeight: 700 }}>
+          Find Your Next Job
+        </Typography>
+        <Typography className="text-slate-500 dark:text-slate-400">
           {loading ? 'Searching...' : `${total.toLocaleString()} job${total !== 1 ? 's' : ''} found`}
-        </p>
+        </Typography>
       </div>
 
       {/* Search bar */}
-      <form onSubmit={handleSearch} className="flex gap-3 mb-6">
-        <div className="relative flex-1">
-          <FiSearch className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 w-5 h-5" />
-          <input
-            type="text"
-            placeholder="Job title, keyword, or company..."
-            value={filters.search}
-            onChange={(e) => setFilters((p) => ({ ...p, search: e.target.value }))}
-            className="form-input pl-11 py-3"
-          />
-        </div>
-        <div className="relative hidden sm:block">
-          <input type="text" placeholder="Location..." value={filters.location}
-            onChange={(e) => updateFilter('location', e.target.value)}
-            className="form-input py-3 w-40" />
-        </div>
-        <button type="submit" className="btn-primary">Search</button>
-        <button type="button" onClick={() => setShowFilters(!showFilters)}
-          className={`btn-secondary relative ${hasActiveFilters ? 'border-indigo-500 text-indigo-700' : ''}`}>
+      <form onSubmit={handleSearch} className="flex flex-col sm:flex-row gap-3 mb-6">
+        <TextField
+          variant="outlined"
+          placeholder="Job title, keyword, or company..."
+          value={filters.search}
+          onChange={(e) => setFilters((p) => ({ ...p, search: e.target.value }))}
+          fullWidth
+          size="small"
+          InputProps={{
+            startAdornment: (
+              <InputAdornment position="start">
+                <FiSearch className="text-slate-400 w-5 h-5" />
+              </InputAdornment>
+            ),
+          }}
+          sx={{ flex: 1, bgcolor: 'background.paper' }}
+        />
+        <TextField
+          variant="outlined"
+          placeholder="Location..."
+          value={filters.location}
+          onChange={(e) => updateFilter('location', e.target.value)}
+          size="small"
+          sx={{ width: { xs: '100%', sm: 160 }, bgcolor: 'background.paper', display: { xs: 'none', sm: 'block' } }}
+        />
+        <Button type="submit" variant="contained" color="primary" sx={{ px: 3, textTransform: 'none' }}>
+          Search
+        </Button>
+        <Button
+          type="button"
+          variant={hasActiveFilters ? "contained" : "outlined"}
+          color={hasActiveFilters ? "primary" : "inherit"}
+          onClick={() => setShowFilters(!showFilters)}
+          sx={{ textTransform: 'none', minWidth: 48, px: 2 }}
+        >
           <FiFilter className="w-4 h-4" />
-          {hasActiveFilters && <span className="absolute -top-1 -right-1 w-2.5 h-2.5 bg-indigo-500 rounded-full" />}
-        </button>
+        </Button>
       </form>
 
       {/* Filter panel */}
       {showFilters && (
-        <div className="card p-5 mb-6 grid grid-cols-1 sm:grid-cols-3 gap-4 animate-slide-up">
-          {/* Job Type */}
-          <div>
-            <label className="form-label">Job Type</label>
-            <select value={filters.jobType} onChange={(e) => updateFilter('jobType', e.target.value)} className="form-input">
-              <option value="">All Types</option>
-              {JOB_TYPES.map((t) => <option key={t} value={t}>{t}</option>)}
-            </select>
-          </div>
-          {/* Category */}
-          <div>
-            <label className="form-label">Category</label>
-            <select value={filters.category} onChange={(e) => updateFilter('category', e.target.value)} className="form-input">
-              <option value="">All Categories</option>
-              {CATEGORIES.map((c) => <option key={c} value={c}>{c}</option>)}
-            </select>
-          </div>
-          {/* Experience */}
-          <div>
-            <label className="form-label">Experience Level</label>
-            <select value={filters.experienceLevel} onChange={(e) => updateFilter('experienceLevel', e.target.value)} className="form-input">
-              <option value="">All Levels</option>
-              {EXP_LEVELS.map((l) => <option key={l} value={l}>{l}</option>)}
-            </select>
-          </div>
+        <Card className="mb-6 animate-slide-up" sx={{ boxShadow: 1, borderRadius: 2 }}>
+          <CardContent className="grid grid-cols-1 sm:grid-cols-3 gap-4 pb-4">
+            {/* Job Type */}
+            <FormControl fullWidth size="small">
+              <InputLabel>Job Type</InputLabel>
+              <Select
+                value={filters.jobType}
+                label="Job Type"
+                onChange={(e) => updateFilter('jobType', e.target.value)}
+              >
+                <MenuItem value=""><em>All Types</em></MenuItem>
+                {JOB_TYPES.map((t) => <MenuItem key={t} value={t}>{t}</MenuItem>)}
+              </Select>
+            </FormControl>
+            {/* Category */}
+            <FormControl fullWidth size="small">
+              <InputLabel>Category</InputLabel>
+              <Select
+                value={filters.category}
+                label="Category"
+                onChange={(e) => updateFilter('category', e.target.value)}
+              >
+                <MenuItem value=""><em>All Categories</em></MenuItem>
+                {CATEGORIES.map((c) => <MenuItem key={c} value={c}>{c}</MenuItem>)}
+              </Select>
+            </FormControl>
+            {/* Experience */}
+            <FormControl fullWidth size="small">
+              <InputLabel>Experience Level</InputLabel>
+              <Select
+                value={filters.experienceLevel}
+                label="Experience Level"
+                onChange={(e) => updateFilter('experienceLevel', e.target.value)}
+              >
+                <MenuItem value=""><em>All Levels</em></MenuItem>
+                {EXP_LEVELS.map((l) => <MenuItem key={l} value={l}>{l}</MenuItem>)}
+              </Select>
+            </FormControl>
 
-          {hasActiveFilters && (
-            <div className="sm:col-span-3 flex justify-end">
-              <button onClick={clearFilters} className="flex items-center gap-1 text-sm text-red-500 hover:text-red-700 font-medium">
-                <FiX className="w-4 h-4" /> Clear Filters
-              </button>
-            </div>
-          )}
-        </div>
+            {hasActiveFilters && (
+              <div className="sm:col-span-3 flex justify-end">
+                <Button onClick={clearFilters} color="error" size="small" sx={{ textTransform: 'none' }}>
+                  Clear Filters
+                </Button>
+              </div>
+            )}
+          </CardContent>
+        </Card>
       )}
 
       {/* Active filter chips */}
@@ -147,10 +182,14 @@ export default function Jobs() {
         <div className="flex flex-wrap gap-2 mb-5">
           {[['jobType', filters.jobType], ['category', filters.category], ['experienceLevel', filters.experienceLevel], ['location', filters.location]].map(([key, val]) =>
             val ? (
-              <span key={key} className="flex items-center gap-1.5 px-3 py-1 bg-indigo-100 text-indigo-700 rounded-full text-xs font-medium">
-                {val}
-                <button onClick={() => updateFilter(key, '')} className="hover:text-indigo-900"><FiX className="w-3 h-3" /></button>
-              </span>
+              <Chip
+                key={key}
+                label={val}
+                onDelete={() => updateFilter(key, '')}
+                color="primary"
+                variant="outlined"
+                size="small"
+              />
             ) : null
           )}
         </div>
@@ -162,9 +201,9 @@ export default function Jobs() {
       ) : jobs.length === 0 ? (
         <div className="text-center py-20">
           <FiSearch className="w-12 h-12 mx-auto mb-4 text-indigo-500" />
-          <h3 className="text-xl font-semibold text-slate-700 dark:text-white mb-2">No jobs found</h3>
-          <p className="text-slate-500 mb-4">Try adjusting your search filters.</p>
-          <button onClick={clearFilters} className="btn-primary">Clear All Filters</button>
+          <Typography variant="h6" className="font-semibold text-slate-700 dark:text-white mb-2">No jobs found</Typography>
+          <Typography className="text-slate-500 mb-4">Try adjusting your search filters.</Typography>
+          <Button onClick={clearFilters} variant="contained" color="primary" sx={{ textTransform: 'none' }}>Clear All Filters</Button>
         </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
@@ -174,30 +213,17 @@ export default function Jobs() {
 
       {/* Pagination */}
       {totalPages > 1 && (
-        <div className="flex items-center justify-center gap-2 mt-10">
-          <button
-            onClick={() => setFilters((p) => ({ ...p, page: p.page - 1 }))}
-            disabled={filters.page <= 1}
-            className="p-2 rounded-xl border border-slate-200 hover:border-indigo-400 disabled:opacity-40 disabled:cursor-not-allowed transition-colors">
-            <FiChevronLeft className="w-5 h-5" />
-          </button>
-
-          {Array.from({ length: totalPages }, (_, i) => i + 1).map((p) => (
-            <button key={p}
-              onClick={() => setFilters((prev) => ({ ...prev, page: p }))}
-              className={`w-9 h-9 rounded-xl text-sm font-semibold transition-colors ${p === filters.page ? 'bg-indigo-600 text-white shadow-sm' : 'border border-slate-200 text-slate-600 hover:border-indigo-400'}`}>
-              {p}
-            </button>
-          ))}
-
-          <button
-            onClick={() => setFilters((p) => ({ ...p, page: p.page + 1 }))}
-            disabled={filters.page >= totalPages}
-            className="p-2 rounded-xl border border-slate-200 hover:border-indigo-400 disabled:opacity-40 disabled:cursor-not-allowed transition-colors">
-            <FiChevronRight className="w-5 h-5" />
-          </button>
+        <div className="flex items-center justify-center mt-10">
+          <Pagination
+            count={totalPages}
+            page={filters.page}
+            onChange={handlePageChange}
+            color="primary"
+            shape="rounded"
+            size="large"
+          />
         </div>
       )}
-    </div>
+    </Container>
   );
 }
